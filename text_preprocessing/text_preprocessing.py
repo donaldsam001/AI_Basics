@@ -26,7 +26,7 @@ def clean_cv_text(text: str)-> str:
     text = re.sub(r'\S+@\S+', '', text)
 
     # Remove special character, " "
-    text = re.sub(r'[^a-z\s]', ' ', text)
+    text = re.sub(r'[^a-z0-9\s+#.]', ' ', text)
 
     # tokenization
     tokens = word_tokenize(text)

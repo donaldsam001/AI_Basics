@@ -1,11 +1,15 @@
-from load_to_dataframe import load_cvs_to_dataframe
-from text_preprocessing import clean_cv_text
-import pandas as pf
+import os
+from extract_data.extract_pdf import extract_text_from_pdf
+from extract_data.extract_doc import extract_text_from_docx
+from extract_data.load_to_dataframe import load_cvs_to_dataframe
+from text_preprocessing.text_preprocessing import clean_cv_text
 
+def main():
+    folder_path = "/home/donaldsam/Downloads/AI_Basic/example_data"
 
-folder_path = "/home/donaldsam/Downloads/AI_Basic/example_data"
-df_cvs = load_cvs_to_dataframe(folder_path)
-print(df_cvs.head())
+    
 
+    
 
-df_cvs['clean_text'] = df_cvs['raw_text'].apply(clean_cv_text)
+if __name__ == "__main__":
+    main()
