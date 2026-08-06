@@ -1,0 +1,71 @@
+candidate_id,file_name,file_type,raw_text,cleaned_text,extracted_skills
+NongVanSam_Backend_Java,NongVanSam_Backend_Java.pdf,pdf,"NONG VAN SAM
+Internship Backend Java
+Github: https://github.com/donaldsam001
+Email: donaldsam9805@gmail.com
+LinkedIn: Van Sam Nong
+Phone: 0384532120
+Address: Phuong Liet, Ha Noi
+SUMMARY
+Third year Information Technology student, with a solid foundation in backend development. I have
+experience building products using the Spring Boot framework. I am actively looking for
+opportunities to study and work as a Backend Developer, with the long-term goal of becoming a
+Full-Stack Developer.
+SKILLS
+Frontend: Angular.
+Backend: Spring Boot(Spring Security, Spring Data JPA, Hibernate).
+Program Languages: C/C++, Python, JavaScript, Java.
+Database: MySQL, SQLite, Supabase.
+Tool&AI: Docker, Git, Postman, Vercel.
+Other: Gitlab CI/CD, Networking, Linux(basic).
+PERSONAL PROJECTS
+Airline Ticket Sales Platform - Backend Service Sep 2025 - Nov 2025
+The Airline Ticket Sales Platform backend service is designed to support comprehensive
+operational and customer workflows. It enables administrators and management staff to maintain
+core data entities, including airlines, flights, aircraft, reservations, tickets, passengers, users, and
+payments. For authenticated users, the system provides a full range of sales features, allowing
+them to efficiently search for flights, book tickets for multiple passengers across different cabin
+classes, utilize various payment methods, manage refunds, and receive digital tickets. Furthermore,
+the system enforces strict, role-based authorization protocols to secure sensitive resources for
+Administrators, Managers, Sales Staff, and Customers.
+Technology Stack:
+Framework/ Core: Spring Boot, RESTful APIs.
+Data Persistence: MySQL, Spring Data JPA, Hibernate.
+Security: Spring Security, JWT.
+Testing: MockMVC, Testcontainers.
+Deployment: Docker.
+Github: https://github.com/donaldsam001/Airplane-Ticket-Sale.git
+EDUCATION
+Hanoi University of Civil Engineering - HUCE Sep 2023- Present
+Engineer of Information Technology
+GPA: 3.11
+TOEIC: 700",nong van sam internship backend java github email linkedin van sam nong phone 0384532120 address phuong liet ha noi summary third year information technology student solid foundation backend development experience building product using spring boot framework actively looking opportunity study work backend developer long term goal becoming full stack developer skill frontend angular backend spring boot spring security spring data jpa hibernate program language c++ python javascript java database mysql sqlite supabase tool ai docker git postman vercel gitlab ci cd networking linux basic personal project airline ticket sale platform backend service sep 2025 nov 2025 airline ticket sale platform backend service designed support comprehensive operational customer workflow enables administrator management staff maintain core data entity including airline flight aircraft reservation ticket passenger user payment authenticated user system provides full range sale feature allowing efficiently search flight book ticket multiple passenger across different cabin class utilize various payment method manage refund receive digital ticket furthermore system enforces strict role based authorization protocol secure sensitive resource administrator manager sale staff customer technology stack framework core spring boot restful apis data persistence mysql spring data jpa hibernate security spring security jwt testing mockmvc testcontainers deployment docker github education hanoi university civil engineering huce sep 2023 present engineer information technology gpa 3.11 toeic 700,"['rest api', 'c++', 'javascript', 'python', 'mysql', 'docker', 'java', 'spring boot']"
+Professional_Software_Engineer_CV_Template,Professional_Software_Engineer_CV_Template.docx,docx,"John Doe
+Hanoi, Vietnam | +84 912 345 678 | john.doe@email.com
+GitHub: https://github.com/johndoe | LinkedIn: https://linkedin.com/in/johndoe
+Professional Summary
+Third-year Information Technology student with experience in Java Spring Boot, React/Next.js, MySQL, Docker, Git, and Linux. Passionate about backend, DevOps, and cloud technologies.
+Education
+ABC University
+Bachelor of Information Technology
+Expected Graduation: June 2027
+GPA: 3.45/4.00
+Technical Skills
+Languages: Java, Python, JavaScript, C++, SQL, Bash
+Frameworks: Spring Boot, Spring Security, React, Next.js
+Databases: MySQL, PostgreSQL
+Tools: Docker, Git, Linux, Maven, Postman
+Projects
+Airline Ticket Booking System: REST APIs, JWT, MySQL, Docker.
+To-Do List Application: Spring Boot + React CRUD app.
+MLOps Learning Project: Python, MLflow, FastAPI.
+Experience
+Backend Developer Intern (Example)
+Developed REST APIs, optimized SQL, fixed bugs, documented APIs.
+Certificates
+AWS Cloud Practitioner (Optional)
+Docker Essentials
+Spring Boot Course
+Languages
+Vietnamese (Native)
+English (Intermediate)",john doe hanoi vietnam +84 912 345 678 github linkedin professional summary third year information technology student experience java spring boot react next.js mysql docker git linux passionate backend devops cloud technology education abc university bachelor information technology expected graduation june 2027 gpa 3.45 4.00 technical skill language java python javascript c++ sql bash framework spring boot spring security react next.js database mysql postgresql tool docker git linux maven postman project airline ticket booking system rest apis jwt mysql docker list application spring boot react crud app mlops learning project python mlflow fastapi experience backend developer intern example developed rest apis optimized sql fixed bug documented apis certificate aws cloud practitioner optional docker essential spring boot course language vietnamese native english intermediate,"['c++', 'javascript', 'python', 'postgresql', 'mysql', 'docker', 'react', 'java', 'spring boot']"

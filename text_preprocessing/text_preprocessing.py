@@ -7,7 +7,7 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 
 nltk.download('stopwords')
-nltk.download('punlt')
+nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('punkt_tab')
 
@@ -22,7 +22,7 @@ def clean_cv_text(text: str)-> str:
     text = text.lower()
 
     # remove URLs, email,...
-    text = re.sub(r'https?://\S+|www\.\S+', text)
+    text = re.sub(r'https?://\S+|www\.\S+', '', text)
     text = re.sub(r'\S+@\S+', '', text)
 
     # Remove special character, " "
@@ -40,4 +40,3 @@ def clean_cv_text(text: str)-> str:
 
     # 
     return " ".join(cleaned_tokens)
-

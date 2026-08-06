@@ -1,0 +1,27 @@
+{
+    "java": ["java", "java core", "java 8", "java 11", "java 17"],
+    "python": ["python", "python3", "py"],
+    "javascript": ["javascript", "js", "ecmascript"],
+    "c++": ["c++", "cpp"],
+    "c#": ["c#", "csharp", ".net"],
+    
+    "spring boot": ["spring boot", "springboot", "spring framework", "spring mvc"],
+    "react": ["react", "reactjs", "react.js"],
+    "pandas": ["pandas"],
+    "scikit-learn": ["scikit-learn", "sklearn"],
+    "web3j": ["web3j"],
+    
+    "mysql": ["mysql"],
+    "postgresql": ["postgresql", "postgres"],
+    "neo4j": ["neo4j", "graph database", "graph db"],
+    "docker": ["docker", "containerization"],
+    "kubernetes": ["kubernetes", "k8s"],
+    "wazuh": ["wazuh"],
+    "suricata": ["suricata"],
+    "pfsense": ["pfsense"],
+    
+    "microservices": ["microservice", "microservices", "microservice architecture"],
+    "rest api": ["rest api", "restful", "restful api"],
+    "blockchain": ["blockchain", "smart contract", "ethereum"],
+    "ci/cd": ["ci/cd", "cicd", "continuous integration"]
+}

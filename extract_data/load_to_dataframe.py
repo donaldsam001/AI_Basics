@@ -1,9 +1,7 @@
 import os
 import pandas as pd
-import pdfplumber
-import docx
-from extract_doc import extract_text_from_docx
-from extract_pdf import extract_text_from_pdf
+from .extract_doc import extract_text_from_docx
+from .extract_pdf import extract_text_from_pdf
 
 
 def load_cvs_to_dataframe(folder_path: str) -> pd.DataFrame:
