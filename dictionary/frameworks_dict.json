@@ -1,0 +1,9 @@
+{
+    "Spring Boot": ["spring boot", "springboot"],
+    "Spring MVC": ["spring mvc"],
+    "Django": ["django"],
+    "Flask": ["flask"],
+    "FastAPI": ["fastapi", "fast api"],
+    "React": ["react"],
+    "Next.js": ["next.js", "nextjs"]
+}

@@ -1,7 +1,7 @@
 import os
 from extract_data.load_to_dataframe import load_cvs_to_dataframe
 from text_preprocessing.text_preprocessing import clean_cv_text
-from text_preprocessing.extract_skills import extract_skills_from_text
+from text_preprocessing.extract_skills import extract_items, extract_email, extract_experience, extract_phone
 import json
 from pathlib import Path
 
@@ -28,7 +28,7 @@ def main():
 
     with skill_file.open(encoding="utf-8") as file:
         skill_dictionary = json.load(file)
-        cvs_df['extracted_skills'] = cvs_df["cleaned_text"].apply(lambda x: extract_skills_from_text(x, skill_dictionary))
+        cvs_df['extracted_skills'] = cvs_df["cleaned_text"].apply(lambda x: extract_items(x, skill_dictionary))
 
 
     # 4. Save the raw and cleaned text for later analysis or modeling.
