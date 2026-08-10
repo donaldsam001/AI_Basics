@@ -1,7 +1,0 @@
-{
-    "MySQL": ["mysql"],
-    "PostgreSQL": ["postgresql", "postgres"],
-    "MongoDB": ["mongodb"],
-    "Oracle": ["oracle"],
-    "SQL Server": ["sql server"]
-}

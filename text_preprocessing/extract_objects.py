@@ -17,7 +17,7 @@ def extract_items(text: str, skill_dict: dict) -> List[str]:
                 result.add(canonical_skill)
                 break
 
-    return sorted(result)
+    return list(result)
 
 def extract_experience(text: str):
     pattern =  r'(\d+)\+?\s*(?:years?|yrs?)'

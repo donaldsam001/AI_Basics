@@ -1,7 +1,0 @@
-{
-    "Docker": ["docker"],
-    "Kubernetes": ["kubernetes", "k8s"],
-    "GitLab CI": ["gitlab ci", "gitlab-ci"],
-    "GitHub Actions": ["github actions"],
-    "Jenkins": ["jenkins"]
-}
