@@ -12,6 +12,10 @@ TITLE_RE = re.compile(
     r"machine learning|qa|test|security|systems?|product)\s+(?:engineer|developer|scientist|analyst|manager|designer)\b"
 )
 DECLARED_YEARS_RE = re.compile(r"(?i)\b(\d+)\s*\+?\s*(?:years?|yrs?)\s+(?:of\s+)?experience\b")
+LABELED_YEARS_RE = re.compile(
+    r"(?im)^[ \t]*(?:total[ \t]+)?(?:work[ \t]+)?experience[ \t]+(?:years?|yrs?)"
+    r"[ \t]*(?::|=|-)?[ \t]*(?:\r?\n[ \t]*)?(\d+)[ \t]*\+?[ \t]*$"
+)
 
 
 def _looks_like_company(line: str) -> bool:
@@ -19,7 +23,7 @@ def _looks_like_company(line: str) -> bool:
 
 
 def extract_work_experience(text: str) -> list[dict[str, object]]:
-    section = find_section(text, ("work experience", "professional experience", "experience", "employment", "work history"))
+    section = find_section(text, ("work experience", "professional experience", "experience", "experience years", "employment", "work history"))
     entries = []
     for block in lines_to_blocks(section):
         start, end = extract_date_range(block)
@@ -67,7 +71,10 @@ def estimate_years_of_experience(text: str, work_experience: list[dict[str, obje
     )
     if months:
         return max(1, math.floor(months / 12))
-    declared = DECLARED_YEARS_RE.search(text)
+    # Dataset-generated DOCX files commonly write this as a field label on one
+    # line and its numeric value on the next (``Experience Years\n10``), rather
+    # than prose such as ``10 years of experience``.
+    declared = LABELED_YEARS_RE.search(text) or DECLARED_YEARS_RE.search(text)
     return int(declared.group(1)) if declared else 0
 
 

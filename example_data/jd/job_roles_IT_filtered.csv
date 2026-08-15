@@ -1,0 +1,109 @@
+﻿Job Title,Category,Education Requirement,Experience Years,Required Skills,Salary Range
+Software Engineer,Technology,Bachelor's in Computer Science|Bachelor's in Engineering,2,Python|Java|C++|Git|Software Design|Problem Solving,80-150K
+Full Stack Developer,Technology,Diploma in IT|Bachelor's in Computer Science,2,JavaScript|React|Node.js|HTML/CSS|Database|Git,75-140K
+Frontend Developer,Technology,Diploma in IT|Bachelor's in Computer Science,1,JavaScript|React|Vue.js|CSS|HTML|UI/UX Design,70-130K
+Backend Developer,Technology,Bachelor's in Computer Science,2,Python|Java|Node.js|Database Design|API Development|SQL,75-135K
+DevOps Engineer,Technology,Bachelor's in Computer Science|IT Certification,3,Docker|Kubernetes|AWS|Linux|CI/CD|Scripting,85-150K
+Cloud Architect,Technology,Bachelor's in Computer Science|Cloud Certification,5,AWS|Azure|GCP|System Design|Networking|Security,120-200K
+Data Scientist,Technology,Master's in Data Science|Bachelor's in Mathematics,2,Python|Machine Learning|Statistics|TensorFlow|SQL|Data Analysis,90-160K
+Machine Learning Engineer,Technology,Master's in Computer Science|Master's in AI,3,Python|TensorFlow|PyTorch|Deep Learning|Statistics|Research,100-180K
+Data Engineer,Technology,Bachelor's in Computer Science,2,Python|Spark|Hadoop|SQL|Data Warehousing|ETL,85-155K
+Database Administrator,Technology,Bachelor's in IT|IT Certification,2,SQL|MongoDB|Database Optimization|Linux|Backup Recovery|Security,70-130K
+Systems Administrator,Technology,Bachelor's in IT|IT Certification,2,Windows Server|Linux|Networking|Security|Active Directory|Troubleshooting,65-125K
+Network Engineer,Technology,Bachelor's in IT|Networking Certification,2,Cisco|Networking|TCP/IP|Security|Routing|Configuration,70-130K
+Cybersecurity Specialist,Technology,Bachelor's in Cybersecurity|Security Certification,3,Penetration Testing|Security Protocols|Networking|Risk Analysis|Encryption|Firewalls,85-150K
+Security Engineer,Technology,Bachelor's in Computer Science|Security Certification,3,Security Architecture|Encryption|Networking|Linux|Risk Management|Compliance,90-160K
+Mobile Developer Android,Technology,Bachelor's in Computer Science,2,Java|Kotlin|Android SDK|XML|REST API|Mobile Design,70-130K
+Mobile Developer iOS,Technology,Bachelor's in Computer Science,2,Swift|Objective-C|iOS SDK|Xcode|REST API|Mobile Design,75-135K
+Game Developer,Technology,Bachelor's in Game Development|Bachelor's in Computer Science,2,Unity|Unreal Engine|C#|C++|Game Physics|Graphics Programming,65-130K
+QA Engineer,Technology,Bachelor's in IT|QA Certification,1,Test Automation|Selenium|Manual Testing|Bug Tracking|SQL|API Testing,50-100K
+Software Architect,Technology,Master's in Computer Science,7,System Design|Architecture Patterns|Microservices|Scalability|Leadership|Multiple Languages,130-200K
+Data Analyst,Data & Analytics,Bachelor's in Mathematics|Bachelor's in Statistics,1,SQL|Python|Excel|Tableau|Data Visualization|Statistical Analysis,60-110K
+Business Analyst,Data & Analytics,Bachelor's in Business|Bachelor's in Computer Science,2,Requirements Gathering|SQL|Excel|Process Improvement|Documentation|Stakeholder Communication,65-120K
+BI Developer,Data & Analytics,Bachelor's in IT|Bachelor's in Statistics,2,Power BI|Tableau|SQL|ETL|Database Design|Data Visualization,70-130K
+BI Analyst,Data & Analytics,Bachelor's in Business|Bachelor's in IT,1,SQL|Tableau|Power BI|Excel|Data Analysis|Reporting,60-110K
+Analytics Engineer,Data & Analytics,Bachelor's in Engineering|Bachelor's in Computer Science,2,SQL|Python|dbt|Data Modeling|Analytics|Cloud Platforms,75-135K
+Financial Analyst,Finance & Accounting,Bachelor's in Finance|Bachelor's in Economics,1,Financial Modeling|Excel|Python|Statistics|Valuation|Risk Analysis,65-120K
+Quality Assurance Manager,Operations & Supply Chain,Bachelor's in Engineering|Quality Certification,3,Quality Management|Process Improvement|Statistical Analysis|Compliance|Leadership|Problem Solving,65-120K
+Mechanical Engineer,Engineering & Manufacturing,Bachelor's in Mechanical Engineering,1,CAD|Mechanical Design|Physics|Thermodynamics|Problem Solving|Technical Documentation,65-125K
+Civil Engineer,Engineering & Manufacturing,Bachelor's in Civil Engineering,2,CAD|Project Management|Structural Analysis|Building Codes|AutoCAD|Technical Design,65-125K
+Electrical Engineer,Engineering & Manufacturing,Bachelor's in Electrical Engineering,2,Circuit Design|Electrical Systems|CAD|Power Systems|Troubleshooting|Technical Knowledge,70-130K
+Electronics Engineer,Engineering & Manufacturing,Bachelor's in Electronics Engineering,1,Circuit Design|Embedded Systems|Microcontrollers|CAD|Hardware Design|PCB Design,65-120K
+Embedded Systems Engineer,Engineering & Manufacturing,Bachelor's in Electronics Engineering|Bachelor's in Computer Engineering,2,C/C++|Embedded Linux|Hardware|Microcontrollers|Real-time Systems|Low-level Programming,70-130K
+Chemical Engineer,Engineering & Manufacturing,Bachelor's in Chemical Engineering,2,Chemical Processes|Safety|Data Analysis|Thermochemistry|Process Design|Laboratory Skills,70-135K
+Manufacturing Engineer,Engineering & Manufacturing,Bachelor's in Manufacturing Engineering|Bachelor's in Mechanical Engineering,2,Process Design|CAD|Production Planning|Quality Control|Problem Solving|Equipment Knowledge,65-120K
+Automotive Engineer,Engineering & Manufacturing,Bachelor's in Automotive Engineering|Bachelor's in Mechanical Engineering,2,CAD|Vehicle Systems|Thermal Systems|Materials|Testing|Problem Solving,70-130K
+Aerospace Engineer,Engineering & Manufacturing,Bachelor's in Aerospace Engineering,2,CAD|Aerodynamics|Structural Analysis|MATLAB|Physics|Design,75-140K
+Environmental Engineer,Engineering & Manufacturing,Bachelor's in Environmental Engineering,2,Environmental Assessment|Regulations|Water Systems|Waste Management|Sustainability|Analysis,65-125K
+Structural Engineer,Engineering & Manufacturing,Bachelor's in Civil Engineering,3,Structural Analysis|CAD|Building Codes|Materials|Calculations|Design,70-135K
+Project Engineer,Engineering & Manufacturing,Bachelor's in Engineering,2,Project Management|Technical Knowledge|Documentation|Coordination|Problem Solving|Communication,65-120K
+Web Designer,Creative & Design,Bachelor's in Design|Web Design Certification,1,Web Design|HTML/CSS|Design Tools|User Experience|Responsive Design|Creativity,55-110K
+Sound Engineer,Entertainment & Media,Associate in Audio Engineering|Certification,1,Audio Engineering|Sound Design|Technical Skills|Equipment Knowledge|Problem Solving|Precision,50-100K
+IT Consultant,Consulting,Bachelor's in Computer Science|IT Certification,3,IT Knowledge|Problem Solving|Communication|System Design|Project Management|Technical Expertise,90-160K
+Technical Support Specialist,Sales & Customer Service,High School|IT Certification,1,Technical Knowledge|Troubleshooting|Communication|Customer Service|Problem Solving|Patience,40-75K
+Safety Engineer,Energy & Utilities,Bachelor's in Safety Engineering|Safety Certification,2,Safety Management|Risk Assessment|Regulatory Knowledge|Problem Solving|Communication|Leadership,70-130K
+Agricultural Engineer,Agriculture & Food,Bachelor's in Agricultural Engineering,2,Agricultural Systems|Equipment Design|Problem Solving|Technical Knowledge|Sustainability|Analysis,60-115K
+Blockchain Developer,Technology,Bachelor's in Computer Science|Blockchain Certification,2,Solidity|Cryptocurrency|Smart Contracts|Blockchain Technology|Python|Problem Solving,100-200K
+AI/ML Specialist,Technology,Master's in AI|Master's in Machine Learning,2,Artificial Intelligence|Deep Learning|Python|TensorFlow|Research|Problem Solving,110-200K
+IoT Engineer,Technology,Bachelor's in Electronics|Bachelor's in Computer Engineering,2,IoT Technology|Embedded Systems|Networking|C/C++|Sensors|System Design,85-150K
+AR/VR Developer,Technology,Bachelor's in Computer Science|Specialized Training,2,Unity|Unreal Engine|C#|3D Graphics|AR/VR Platforms|Problem Solving,90-160K
+DevSecOps Engineer,Technology,Bachelor's in Computer Science|Security Certification,3,DevOps|Security|CI/CD|Container Security|Compliance|Linux,110-180K
+React Developer,Technology,Bachelor's in Computer Science|Bootcamp,1,JavaScript|React|CSS|HTML|Redux|API Integration,65-120K
+Vue Developer,Technology,Bachelor's in Computer Science,1,JavaScript|Vue.js|CSS|HTML|Vuex|API Integration,60-115K
+Angular Developer,Technology,Bachelor's in Computer Science,2,JavaScript|Angular|TypeScript|CSS|RxJS|API Integration,70-130K
+PHP Developer,Technology,Bachelor's in Computer Science,1,PHP|Laravel|Symfony|MySQL|API Development|HTML/CSS,55-105K
+Python Developer,Technology,Bachelor's in Computer Science,1,Python|Django|Flask|SQL|REST API|Problem Solving,65-120K
+Ruby Developer,Technology,Bachelor's in Computer Science,1,Ruby|Ruby on Rails|SQL|HTML/CSS|API Development|Problem Solving,65-125K
+Go Developer,Technology,Bachelor's in Computer Science,2,Go|Microservices|API Development|Concurrency|Docker|Problem Solving,80-140K
+Rust Developer,Technology,Bachelor's in Computer Science,2,Rust|System Programming|Memory Safety|Cargo|Problem Solving|Performance Optimization,85-150K
+Java Backend Developer,Technology,Bachelor's in Computer Science,2,Java|Spring Boot|SQL|REST API|Microservices|Maven,75-135K
+C++ Developer,Technology,Bachelor's in Computer Science,2,C++|System Programming|Memory Management|Problem Solving|Debugging|Performance,75-135K
+C# Developer,Technology,Bachelor's in Computer Science,1,C#|.NET Framework|SQL|Azure|API Development|LINQ,70-130K
+Scala Developer,Technology,Bachelor's in Computer Science,2,Scala|Functional Programming|Apache Spark|SQL|Problem Solving|Big Data,80-140K
+Perl Developer,Technology,Bachelor's in Computer Science,2,Perl|Text Processing|Scripting|Regular Expressions|Problem Solving|System Administration,70-125K
+Shell Script Developer,Technology,Bachelor's in Computer Science,1,Shell Scripting|Linux|Automation|Bash|System Administration|Problem Solving,60-110K
+Elixir Developer,Technology,Bachelor's in Computer Science,2,Elixir|Phoenix Framework|Functional Programming|Erlang|Distributed Systems|Problem Solving,80-140K
+Clojure Developer,Technology,Bachelor's in Computer Science,2,Clojure|Functional Programming|Java Interop|LispyScript|Problem Solving|Concurrency,80-140K
+Haskell Developer,Technology,Bachelor's in Computer Science,2,Haskell|Functional Programming|Type System|Problem Solving|Concurrency|Lambda Calculus,80-140K
+TypeScript Developer,Technology,Bachelor's in Computer Science,1,TypeScript|JavaScript|Node.js|Type Safety|Object-Oriented Design|Problem Solving,70-130K
+Kotlin Developer,Technology,Bachelor's in Computer Science,1,Kotlin|Android Development|Java Interop|Coroutines|Problem Solving|Mobile Development,70-130K
+Swift Developer,Technology,Bachelor's in Computer Science,1,Swift|iOS Development|Xcode|UI/UX|Problem Solving|Mobile Development,75-135K
+R Programmer,Data & Analytics,Bachelor's in Statistics|Bachelor's in Mathematics,1,R|Statistical Analysis|Data Visualization|tidyverse|ggplot2|Problem Solving,65-120K
+MATLAB Developer,Technology,Bachelor's in Engineering|Bachelor's in Physics,1,MATLAB|Numerical Analysis|Signal Processing|Simulink|Problem Solving|Mathematics,70-130K
+Jupyter Developer,Data & Analytics,Bachelor's in Computer Science|Data Science Certificate,1,Jupyter Notebooks|Python|Data Analysis|Visualization|Documentation|Collaboration,65-120K
+Oracle DBA,Technology,Bachelor's in IT|Oracle Certification,3,Oracle Database|SQL|Database Administration|Performance Tuning|Backup Recovery|Security,80-145K
+MongoDB Developer,Technology,Bachelor's in Computer Science,2,MongoDB|NoSQL|JSON|JavaScript|Aggregation|Indexing,75-135K
+Cassandra Developer,Technology,Bachelor's in Computer Science,2,Cassandra|NoSQL|Distributed Systems|CQL|Scalability|Performance,80-145K
+Redis Developer,Technology,Bachelor's in Computer Science,2,Redis|Caching|Data Structures|Pub/Sub|Performance Optimization|Scalability,80-140K
+Elasticsearch Developer,Technology,Bachelor's in Computer Science,2,Elasticsearch|Search Technology|Analytics|Query DSL|Kibana|Performance,80-140K
+Kafka Developer,Technology,Bachelor's in Computer Science,2,Apache Kafka|Streaming|Event Processing|Distributed Systems|Scalability|Problem Solving,85-150K
+Spark Developer,Data & Analytics,Bachelor's in Computer Science,2,Apache Spark|Big Data|Python|Scala|Distributed Computing|SQL,85-150K
+Hadoop Developer,Data & Analytics,Bachelor's in Computer Science,2,Hadoop|HDFS|MapReduce|Big Data|Java|Distributed Computing,85-150K
+Data Warehouse Architect,Data & Analytics,Master's in IT|Data Warehouse Certification,5,Data Warehouse Design|ETL|SQL|Dimensional Modeling|Performance Tuning|Strategic Planning,110-180K
+ETL Developer,Data & Analytics,Bachelor's in IT,2,ETL Tools|SQL|Data Integration|Data Quality|Problem Solving|Performance,70-130K
+Talend Developer,Data & Analytics,Bachelor's in IT,2,Talend|ETL|Data Integration|Java|SQL|Data Quality,75-135K
+Informatica Developer,Data & Analytics,Bachelor's in IT,2,Informatica|ETL|Data Integration|SQL|Data Quality|Performance Tuning,75-135K
+SAS Programmer,Data & Analytics,Bachelor's in Statistics|SAS Certification,1,SAS|Statistical Analysis|Data Management|Visualization|SQL|Problem Solving,70-130K
+Power BI Developer,Data & Analytics,Bachelor's in IT,1,Power BI|Data Visualization|DAX|SQL|Excel|Dashboard Development,65-125K
+Looker Developer,Data & Analytics,Bachelor's in IT,2,Looker|Data Visualization|LookML|SQL|Analytics|Dashboard Development,75-135K
+Qlik Developer,Data & Analytics,Bachelor's in IT,2,Qlik Sense|Qlik View|Data Visualization|SQL|Analytics|Dashboard Development,75-135K
+Tableau Specialist,Data & Analytics,Bachelor's in IT|Tableau Certification,1,Tableau|Data Visualization|SQL|Analytics|Dashboard Design|Communication,65-120K
+Salesforce Developer,Technology,Bachelor's in Computer Science|Salesforce Certification,2,Salesforce|Apex|VisualForce|Lightning|CRM|Problem Solving,80-150K
+Salesforce Administrator,Technology,Bachelor's in IT|Salesforce Admin Certification,1,Salesforce|Administration|Configuration|User Management|Data Management|Support,60-110K
+SAP Developer,Technology,Bachelor's in IT|SAP Certification,2,SAP|ABAP|Enterprise Systems|SQL|Problem Solving|Configuration,85-150K
+Oracle Applications Developer,Technology,Bachelor's in IT|Oracle Certification,2,Oracle Apps|PL/SQL|ERP Systems|SQL|Problem Solving|Configuration,80-145K
+Shopify Developer,Technology,Bachelor's in Computer Science,1,Shopify|Liquid|JavaScript|API Integration|E-commerce|Problem Solving,70-130K
+WordPress Developer,Technology,High School|WordPress Certification,1,WordPress|PHP|JavaScript|CSS|Plugin Development|Theme Development,55-110K
+Drupal Developer,Technology,Bachelor's in Computer Science,2,Drupal|PHP|JavaScript|MySQL|Theme Development|Module Development,70-130K
+Magento Developer,Technology,Bachelor's in Computer Science,2,Magento|PHP|JavaScript|E-commerce|MySQL|Problem Solving,75-135K
+Joomla Developer,Technology,Bachelor's in Computer Science,1,Joomla|PHP|JavaScript|CMS|MySQL|Theme Development,60-115K
+Cybersecurity Analyst,Technology,Bachelor's in Cybersecurity|Security+ Certification,1,Threat Analysis|Vulnerability Assessment|Security Systems|Log Analysis|Incident Response|Risk Assessment,70-130K
+Ethical Hacker,Technology,Bachelor's in Cybersecurity|CEH Certification,3,Penetration Testing|Hacking Tools|Networking|Security|Problem Solving|Vulnerability Research,90-160K
+IT Help Desk Technician,Technology,High School|CompTIA A+ Certification,0,Technical Support|Troubleshooting|Hardware|Software|Customer Service|Communication,35-65K
+Website Administrator,Technology,Bachelor's in IT,1,Website Management|CMS|Server Administration|HTML/CSS|Database Management|Troubleshooting,50-90K
+Technical Writer,Technology,Bachelor's in English|Technical Writing Certification,1,Technical Writing|Documentation|API Documentation|Communication|Organization|Problem Solving,50-100K
+Solutions Engineer,Technology,Bachelor's in Computer Science|Bachelor's in Engineering,3,Technical Problem Solving|Solution Design|Communication|Customer Relations|Product Knowledge|Presentation,85-155K
+Pre-Sales Engineer,Technology,Bachelor's in Computer Science,2,Sales Engineering|Technical Knowledge|Communication|Product Demonstration|Problem Solving|Client Relations,75-140K
+Academic Data Analyst,Data & Analytics,Master's in Data Science|PhD,2,Statistical Analysis|Research|Python|R|Academic Writing|Problem Solving,70-130K
+Biomedical Engineer,Engineering & Manufacturing,Bachelor's in Biomedical Engineering,2,Biomedical Systems|Medical Devices|CAD|Problem Solving|Regulatory Knowledge|Technical Design,75-140K
+Software Test Engineer,Technology,Bachelor's in Computer Science,1,Test Automation|Manual Testing|Problem Solving|Selenium|API Testing|Documentation,55-105K

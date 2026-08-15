@@ -40,6 +40,10 @@ class ResumeParserTests(unittest.TestCase):
         self.assertEqual(parsed["work_experience"][0]["start_date"], "2020-02")
         self.assertEqual(parsed["education"][0]["major"], "Computing")
 
+    def test_experience_years_label_from_docx_text(self) -> None:
+        parsed = parse_resume("Resume R0\nExperience Years\n10\nEducation Level\nPhD")
+        self.assertEqual(parsed["years_of_experience"], 10)
+
 
 if __name__ == "__main__":
     unittest.main()

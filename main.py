@@ -9,7 +9,7 @@ from resume_parser import parse_resume
 def main():
     """Load CVs, preprocess their text, and save the cleaned data."""
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    folder_path = os.path.join(base_dir, "example_data")
+    folder_path = os.path.join(base_dir, "example_data/docx")
     output_path = os.path.join(base_dir, "preprocessed_cvs.csv")
 
     # 1. Extract text from PDF and DOCX CVs.
@@ -32,3 +32,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+'''
+python -m src.main --cv example/Train_Resume_Data_parsed.csv --job example_data/job_roles_IT_filtered.csv
+python -m src.main --cv preprocessed_cvs.csv --job example_data/jd/job_roles_IT_filtered.csv
+/home/donaldsam/Downloads/AI_Basic/preprocessed_cvs.csv
+/home/donaldsam/Downloads/AI_Basic/example_data/job_roles_IT_filtered.csv
+'''
