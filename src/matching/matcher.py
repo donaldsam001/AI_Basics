@@ -121,6 +121,25 @@ class CVJobMatcher:
                    for cv, embedding in zip(cvs, cv_embeddings, strict=True)]
         return sorted(results, key=lambda result: result["final_score"], reverse=True)
 
+    def rank_retrieved_candidates(
+        self, cvs: list[dict[str, Any]], job: dict[str, Any], vector_store: Any,
+        metadata_store: Any, k: int = 50,
+    ) -> list[dict[str, Any]]:
+        """Use FAISS to narrow candidates before applying hybrid detailed scoring.
+
+        The method keeps the existing ranking calculation intact; it only limits
+        that calculation to the metadata-backed candidates returned by FAISS.
+        """
+        if not cvs:
+            return []
+        metadata_store.validate_index_size(vector_store.size)
+        job_embedding = self.encode_job(job)
+        _, faiss_ids = vector_store.search(job_embedding, k)
+        source_indices = [metadata_store.get_candidate(int(faiss_id))["source_index"] for faiss_id in faiss_ids]
+        if any(not isinstance(index, int) or not 0 <= index < len(cvs) for index in source_indices):
+            raise ValueError("FAISS metadata contains a source_index outside the loaded CV dataset")
+        return self.rank_candidates([cvs[index] for index in source_indices], job)
+
 
 def rank_candidates(cvs: list[dict[str, Any]], job_description: dict[str, Any],
                     embedding_model: EmbeddingModel | None = None) -> list[dict[str, Any]]:

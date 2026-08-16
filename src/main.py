@@ -63,12 +63,25 @@ def main() -> None:
     parser.add_argument("--job", required=True, help="CSV with job_title and job_description columns")
     parser.add_argument("--job-index", type=int, default=0,
                         help="Zero-based job row to rank against (default: 0)")
+    parser.add_argument("--faiss-index", help="Optional FAISS index for candidate retrieval")
+    parser.add_argument("--faiss-metadata", help="Metadata JSON for --faiss-index")
+    parser.add_argument("--retrieval-k", type=int, default=50,
+                        help="Candidates to retrieve before detailed ranking (default: 50)")
     args = parser.parse_args()
     cvs, job = load_cvs(args.cv), load_job(args.job, args.job_index)
     print("Loading embedding model...")
     print("Model: sentence-transformers/all-mpnet-base-v2")
     print("\nEncoding job description and CVs...\n")
-    results = CVJobMatcher(embedding_cache=EmbeddingCache()).rank_candidates(cvs, job)
+    matcher = CVJobMatcher(embedding_cache=EmbeddingCache())
+    if args.faiss_index or args.faiss_metadata:
+        if not args.faiss_index or not args.faiss_metadata:
+            parser.error("--faiss-index and --faiss-metadata must be supplied together")
+        from src.vector_store import FAISSStore, MetadataStore
+        results = matcher.rank_retrieved_candidates(
+            cvs, job, FAISSStore.load(args.faiss_index), MetadataStore(args.faiss_metadata), args.retrieval_k,
+        )
+    else:
+        results = matcher.rank_candidates(cvs, job)
     print("=" * 50 + "\nCV MATCHING RESULTS\n" + "=" * 50)
     for rank, result in enumerate(results, 1):
         print(f"\n{rank}. {result['candidate_name']}")
