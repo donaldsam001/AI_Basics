@@ -39,4 +39,5 @@ python -m src.main --cv example/Train_Resume_Data_parsed.csv --job example_data/
 python -m src.main --cv preprocessed_cvs.csv --job example_data/jd/job_roles_IT_filtered.csv
 /home/donaldsam/Downloads/AI_Basic/preprocessed_cvs.csv
 /home/donaldsam/Downloads/AI_Basic/example_data/job_roles_IT_filtered.csv
+/home/donaldsam/Downloads/AI_Basic/example_data/ml_resume_dataset_4500.csv
 '''

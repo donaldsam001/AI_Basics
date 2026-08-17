@@ -36,8 +36,18 @@ def _split_skills(value: Any) -> list[str]:
 def load_cvs(path: str) -> list[dict[str, Any]]:
     cvs = []
     for row in _csv_records(path, "CV"):
-        parsed = preprocess_cv(_value(row, "cv_text", "raw_text"))
+        raw_text = _value(row, "cv_text", "raw_text")
+        parsed = preprocess_cv(raw_text)
         parsed["candidate_name"] = _value(row, "candidate_name") or parsed.get("candidate_name")
+        # Preserve source fields used by the optional supervised model.  The
+        # parser remains authoritative for matching fields, while raw source
+        # values retain information (such as portfolio presence) it does not
+        # extract.
+        parsed["raw_text"] = raw_text
+        for field in ("years_experience", "highest_degree", "skills", "current_title", "has_portfolio"):
+            value = _value(row, field)
+            if value not in (None, ""):
+                parsed[field] = value
         cvs.append(parsed)
     return cvs
 
@@ -67,29 +77,45 @@ def main() -> None:
     parser.add_argument("--faiss-metadata", help="Metadata JSON for --faiss-index")
     parser.add_argument("--retrieval-k", type=int, default=50,
                         help="Candidates to retrieve before detailed ranking (default: 50)")
+    parser.add_argument("--xgb-model", help="Native XGBoost model used to rerank FAISS results")
+    parser.add_argument("--xgb-features", help="Feature schema JSON; defaults to xgb_features.json beside the model")
     args = parser.parse_args()
     cvs, job = load_cvs(args.cv), load_job(args.job, args.job_index)
     print("Loading embedding model...")
     print("Model: sentence-transformers/all-mpnet-base-v2")
     print("\nEncoding job description and CVs...\n")
     matcher = CVJobMatcher(embedding_cache=EmbeddingCache())
+    xgb_scorer = None
+    if args.xgb_model:
+        if not args.faiss_index:
+            parser.error("--xgb-model requires FAISS retrieval; supply --faiss-index and --faiss-metadata")
+        from src.models import XGBCandidateScorer
+        xgb_scorer = XGBCandidateScorer.load(args.xgb_model, args.xgb_features)
     if args.faiss_index or args.faiss_metadata:
         if not args.faiss_index or not args.faiss_metadata:
             parser.error("--faiss-index and --faiss-metadata must be supplied together")
         from src.vector_store import FAISSStore, MetadataStore
         results = matcher.rank_retrieved_candidates(
             cvs, job, FAISSStore.load(args.faiss_index), MetadataStore(args.faiss_metadata), args.retrieval_k,
+            xgb_scorer,
         )
     else:
         results = matcher.rank_candidates(cvs, job)
     print("=" * 50 + "\nCV MATCHING RESULTS\n" + "=" * 50)
     for rank, result in enumerate(results, 1):
         print(f"\n{rank}. {result['candidate_name']}")
-        print(f"   Final Score: {result['final_score']:.2f}")
+        if "xgb_probability" in result:
+            print(f"   XGBoost Probability: {result['xgb_probability']:.4f}")
+            print(f"   FAISS Similarity: {result['faiss_similarity']:.4f}")
+            print(f"   Deterministic Score: {result['deterministic_score']:.2f}")
+        else:
+            print(f"   Final Score: {result['final_score']:.2f}")
         print(f"   Semantic: {result['semantic_score']:.2f}")
         print(f"   Required Skills: {result['required_skill_score']:.2f}")
         print(f"   Preferred Skills: {result['preferred_skill_score']:.2f}")
         print(f"   Experience: {result['experience_score']:.2f}")
+        if "education_score" in result:
+            print(f"   Education: {result['education_score']:.2f}")
 
 
 if __name__ == "__main__":

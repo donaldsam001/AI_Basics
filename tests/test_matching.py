@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+import json
 from tempfile import TemporaryDirectory
 
 import numpy as np
@@ -14,6 +15,7 @@ from src.matching.similarity import (
     similarity_to_score,
 )
 from src.preprocessing import build_cv_embedding_text, build_job_embedding_text, preprocess_job
+from src.vector_store import FAISSStore, MetadataStore
 
 
 class FakeModel:
@@ -77,6 +79,34 @@ class MatchingTests(unittest.TestCase):
             cache.encode(["Java"], model, "cv")
             cache.encode(["Java"], model, "cv")
             self.assertEqual(model.calls, 1)
+
+    def test_faiss_candidates_are_reranked_by_xgboost_probability(self):
+        class FakeScorer:
+            def predict_probabilities(self, feature_rows):
+                self.feature_rows = feature_rows
+                return np.array([0.1, 0.9])
+
+        with TemporaryDirectory() as directory:
+            metadata_path = f"{directory}/metadata.json"
+            with open(metadata_path, "w", encoding="utf-8") as handle:
+                json.dump([
+                    {"faiss_id": 0, "source_index": 0},
+                    {"faiss_id": 1, "source_index": 1},
+                ], handle)
+            store = FAISSStore(2)
+            store.add(np.array([[1.0, 0.0], [0.0, 1.0]]))
+            matcher = CVJobMatcher(FakeModel())
+            results = matcher.rank_retrieved_candidates(
+                [
+                    {"candidate_name": "Java Dev", "technical_skills": ["Java"]},
+                    {"candidate_name": "Python Dev", "technical_skills": ["Python"]},
+                ],
+                {"job_title": "Java role", "required_skills": ["Java"]},
+                store, MetadataStore(metadata_path), k=2, xgb_scorer=FakeScorer(),
+            )
+            self.assertEqual(results[0]["candidate_name"], "Python Dev")
+            self.assertEqual(results[0]["xgb_probability"], 0.9)
+            self.assertIn("faiss_similarity", results[0])
 
 
 if __name__ == "__main__":

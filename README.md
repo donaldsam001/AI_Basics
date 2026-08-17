@@ -28,3 +28,33 @@ The resulting `semantic_match_score` supports comparing relevance between candid
 ## CPU notes
 
 The model is loaded once per matcher and candidate embeddings are generated in batches of eight. A job is encoded once per ranking operation, while NumPy dot products compare it with all CV vectors. CLI runs persist source-hashed `data/embeddings/cv_embeddings.npy` and `job_embeddings.npy`; only changed source text is encoded again.
+
+## XGBoost Candidate Reranking
+
+FAISS remains the fast semantic retrieval layer: it uses MPNet embeddings to find only the top `--retrieval-k` CVs. XGBoost is an optional supervised scoring layer applied **only** to those retrieved CVs, so it does not replace FAISS or run across the entire candidate collection.
+
+The feature module has numeric candidate features (years of experience, portfolio presence, parsed skill count, raw-text length, and an ordinal education level) plus reusable CV--JD comparison features (semantic score, required/preferred skill coverage, experience, education, and title similarity). Skills are lowercased, deduplicated, and normalized for common aliases. FAISS similarity is reported separately from the XGBoost probability; cosine similarity is not a probability.
+
+Train the included CV-level model:
+
+```bash
+python -m src.models.train_xgboost \
+  --dataset example_data/ml_resume_dataset_4500.csv \
+  --output data/models/cv_job_xgb.json
+```
+
+Training uses an 80/20 stratified split and reports class distribution, accuracy, precision, recall, F1, ROC-AUC, a confusion matrix, and a classification report. It saves the native model, ordered feature schema, and sorted feature importance to `data/models/cv_job_xgb.json`, `data/models/xgb_features.json`, and `data/models/xgb_feature_importance.csv`.
+
+Then retrieve and rerank candidates:
+
+```bash
+python -m src.main \
+  --cv data/preprocess/preprocessed_cvs.csv \
+  --job example_data/jd/job_roles_IT_filtered.csv \
+  --faiss-index data/faiss/cv.index \
+  --faiss-metadata data/faiss/cv_metadata.json \
+  --retrieval-k 50 \
+  --xgb-model data/models/cv_job_xgb.json
+```
+
+`ml_resume_dataset_4500.csv` labels individual CV records: `1` means suitable and `0` means unsuitable according to that dataset's source semantics. It does not include CV--JD pairs or a job identifier, so the provided model is a CV-level suitability model, not a calibrated job-specific suitability probability. The pipeline deliberately does not fabricate pair labels; add a pair-labelled dataset before training the comparison features for job-specific probability estimates.
