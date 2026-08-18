@@ -28,14 +28,31 @@ def _text_hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def _resolve_path(path: Path | str) -> Path:
+    p = Path(path)
+    if p.is_file():
+        return p
+    candidates = [
+        Path("data/preprocess") / p.name,
+        Path("data") / p.name,
+        Path("example_data") / p.name,
+    ]
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    return p
+
+
 def _load_source_rows(path: Path) -> list[dict[str, str]]:
-    if not path.is_file():
+    resolved = _resolve_path(path)
+    if not resolved.is_file():
         raise FileNotFoundError(f"CV CSV does not exist: {path}")
-    with path.open(newline="", encoding="utf-8") as handle:
+    with resolved.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     if not rows:
-        raise ValueError(f"CV CSV is empty: {path}")
+        raise ValueError(f"CV CSV is empty: {resolved}")
     return rows
+
 
 
 def _cached_vectors_for_texts(embedding_path: Path, texts: list[str]) -> np.ndarray | None:
@@ -74,6 +91,8 @@ def _metadata(rows: list[dict[str, str]], cvs: list[dict[str, Any]]) -> list[dic
     for source_index, (row, cv) in enumerate(zip(rows, cvs, strict=True)):
         candidate_id = (row.get("candidate_id") or "").strip() or f"candidate_{source_index:06d}"
         candidate_name = (row.get("candidate_name") or "").strip() or cv.get("candidate_name") or "Unknown Candidate"
+        if not candidate_name or candidate_name.casefold() in ("experience years", "unknown candidate", "experience year"):
+            candidate_name = candidate_id
         records.append({
             "faiss_id": source_index,
             "candidate_id": candidate_id,
@@ -81,6 +100,7 @@ def _metadata(rows: list[dict[str, str]], cvs: list[dict[str, Any]]) -> list[dic
             "source_index": source_index,
         })
     return records
+
 
 
 def build_cv_index(

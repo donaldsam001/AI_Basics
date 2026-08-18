@@ -9,3 +9,6 @@ python-docx
 nltk
 faiss-cpu
 xgboost
+llama-cpp-python
+fastapi
+uvicorn
