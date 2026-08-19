@@ -86,6 +86,50 @@ class XGBoostTrainingTests(unittest.TestCase):
             prediction = scorer.predict_probabilities([build_candidate_features({"skills": "Python"})])
             self.assertEqual(prediction.shape, (1,))
 
+    def test_elite_dataset_training_and_preprocessing(self):
+        from src.models.train_xgboost import train_xgboost
+
+        with TemporaryDirectory() as directory:
+            dataset = Path(directory) / "elite_data.csv"
+            with dataset.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=[
+                    "resume_id", "resume_text", "resume_skills", "experience_years", "education_level",
+                    "projects", "certifications", "job_role", "required_skills", "job_experience_required",
+                    "job_description", "skill_match_score", "experience_match", "education_match",
+                    "final_score", "shortlisted", "similarity_score",
+                ])
+                writer.writeheader()
+                for index in range(20):
+                    positive = index % 2
+                    writer.writerow({
+                        "resume_id": f"R{index}",
+                        "resume_text": "Experienced Python and ML developer project building algorithms",
+                        "resume_skills": "Python, SQL, PyTorch",
+                        "experience_years": 6 if positive else 1,
+                        "education_level": "Bachelors" if positive else "High School",
+                        "projects": "Neural network optimization",
+                        "certifications": "AWS Certified" if positive else None,
+                        "job_role": "Software Engineer",
+                        "required_skills": "Python, SQL",
+                        "job_experience_required": 3,
+                        "job_description": "Build high performance Python backends and machine learning models",
+                        "skill_match_score": 0.8 if positive else 0.2,
+                        "experience_match": 1.0 if positive else 0.0,
+                        "education_match": 1.0 if positive else 0.0,
+                        "final_score": 85.0 if positive else 30.0,
+                        "shortlisted": positive,
+                        "similarity_score": 1.0,
+                    })
+            model_path = Path(directory) / "model.json"
+            features_path = Path(directory) / "features.json"
+            importance_path = Path(directory) / "importance.csv"
+            _, metrics = train_xgboost(dataset, model_path, features_path, importance_path,
+                                       model_options={"n_estimators": 2, "max_depth": 2})
+            self.assertIn("roc_auc", metrics)
+            self.assertIn("pr_auc", metrics)
+            self.assertTrue(importance_path.is_file())
+            self.assertTrue(model_path.is_file())
+
 
 if __name__ == "__main__":
     unittest.main()

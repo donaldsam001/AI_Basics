@@ -1,11 +1,64 @@
 {
   "feature_names": [
-    "years_experience",
-    "has_portfolio",
-    "skill_count",
-    "raw_text_length",
-    "education_level"
+    "education_level_Bachelors",
+    "education_level_Masters",
+    "education_level_PhD",
+    "job_role_Backend Developer",
+    "job_role_Data Analyst",
+    "job_role_Data Scientist",
+    "job_role_Frontend Developer",
+    "job_role_ML Engineer",
+    "job_role_Software Engineer",
+    "experience_years",
+    "job_experience_required",
+    "experience_diff",
+    "skill_match_score",
+    "experience_match",
+    "education_match",
+    "similarity_score",
+    "has_certification",
+    "cert_count",
+    "num_resume_skills",
+    "num_required_skills",
+    "resume_text_len",
+    "job_desc_len"
   ],
-  "label_semantics": "CV-level source-dataset suitability: 1=suitable, 0=unsuitable.",
-  "pair_label_limitation": "No CV--JD pair labels were available; pair features are not trained by this model."
+  "raw_feature_cols": [
+    "experience_years",
+    "job_experience_required",
+    "experience_diff",
+    "skill_match_score",
+    "experience_match",
+    "education_match",
+    "similarity_score",
+    "has_certification",
+    "cert_count",
+    "num_resume_skills",
+    "num_required_skills",
+    "resume_text_len",
+    "job_desc_len",
+    "education_level",
+    "job_role"
+  ],
+  "categorical_cols": [
+    "education_level",
+    "job_role"
+  ],
+  "numeric_cols": [
+    "experience_years",
+    "job_experience_required",
+    "experience_diff",
+    "skill_match_score",
+    "experience_match",
+    "education_match",
+    "similarity_score",
+    "has_certification",
+    "cert_count",
+    "num_resume_skills",
+    "num_required_skills",
+    "resume_text_len",
+    "job_desc_len"
+  ],
+  "label_semantics": "Candidate-Job pair suitability: 1=shortlisted, 0=rejected.",
+  "dataset_source": "data/ats_resume_dataset_elite_v3.csv"
 }
