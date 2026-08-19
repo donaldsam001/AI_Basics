@@ -1,23 +1,23 @@
 feature_name,importance
-experience_match,0.6060405
-experience_diff,0.15337844
-skill_match_score,0.030903839
-experience_years,0.025391944
-education_match,0.024317589
-education_level_Bachelors,0.021890093
-cert_count,0.017289633
-has_certification,0.016290044
-job_experience_required,0.0135625815
-resume_text_len,0.012565475
-education_level_PhD,0.009069697
-num_required_skills,0.008760017
-similarity_score,0.008037084
-job_role_ML Engineer,0.007174965
-job_desc_len,0.0066835554
-job_role_Backend Developer,0.0065320972
-education_level_Masters,0.006306775
-job_role_Data Scientist,0.0060255667
-job_role_Frontend Developer,0.005895852
-job_role_Software Engineer,0.0053232536
-num_resume_skills,0.005118642
-job_role_Data Analyst,0.0034425003
+experience_satisfies,0.43858448
+experience_gap,0.29438236
+education_level_score,0.042787578
+required_skill_score,0.039808158
+skill_coverage_ratio,0.03859107
+matched_required_skill_count,0.030161899
+certification_count,0.02824323
+resume_text_length,0.016912537
+experience_score,0.014259232
+candidate_experience_years,0.010959135
+missing_required_skill_count,0.010778753
+required_experience_years,0.009647817
+candidate_skill_count,0.009007949
+total_required_skill_count,0.008315654
+semantic_similarity,0.007560205
+faiss_similarity,0.0
+matched_preferred_skill_count,0.0
+preferred_skill_score,0.0
+has_certification,0.0
+education_meets_requirement,0.0
+has_portfolio,0.0
+title_similarity,0.0

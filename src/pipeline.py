@@ -16,7 +16,9 @@ The pipeline is deliberately designed so that:
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Any
+
 
 from src.config import PipelineConfig
 from src.embeddings import EmbeddingCache, EmbeddingModel
@@ -228,14 +230,21 @@ def create_pipeline(config: PipelineConfig | None = None) -> MatchingPipeline:
     embedding_cache = EmbeddingCache(config.embedding_cache_dir)
     matcher = CVJobMatcher(embedding_cache=embedding_cache)
 
-    # XGBoost scorer (optional).
+    # XGBoost scorer (optional) — try joblib pipeline first, fall back to
+    # legacy XGBoost JSON format.
     xgb_scorer = None
+    pipeline_path = Path(config.xgboost_model_path).parent / "xgb_pipeline.joblib"
+    schema_path = Path(config.xgboost_model_path).parent / "xgb_schema.json"
     try:
-        xgb_scorer = XGBCandidateScorer.load(
-            config.xgboost_model_path,
-            config.xgboost_features_path,
-        )
-        logger.info("XGBoost scorer loaded from %s", config.xgboost_model_path)
+        if pipeline_path.is_file():
+            xgb_scorer = XGBCandidateScorer.load_pipeline(pipeline_path, schema_path)
+            logger.info("XGBoost pipeline loaded from %s", pipeline_path)
+        else:
+            xgb_scorer = XGBCandidateScorer.load(
+                config.xgboost_model_path,
+                config.xgboost_features_path,
+            )
+            logger.info("XGBoost scorer loaded from %s", config.xgboost_model_path)
     except (FileNotFoundError, ValueError, RuntimeError) as error:
         logger.warning("XGBoost scorer unavailable: %s", error)
 
@@ -259,3 +268,4 @@ def create_pipeline(config: PipelineConfig | None = None) -> MatchingPipeline:
         qwen=qwen,
         config=config,
     )
+

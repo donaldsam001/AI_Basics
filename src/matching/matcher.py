@@ -148,20 +148,23 @@ class CVJobMatcher:
         if xgb_scorer is None:
             return sorted(results, key=lambda result: result["final_score"], reverse=True)
 
-        # Import here to avoid a package-import cycle with matching helpers.
-        from src.features import build_cv_jd_features
+        # Use the CANONICAL feature builder — the same function used during
+        # training.  This eliminates training/inference schema drift.
+        from src.models.feature_builder import build_pair_features
 
-        feature_rows = [
-            build_cv_jd_features(cv, job, semantic_score=result["semantic_score"],
-                                  retrieval_score=result["faiss_similarity"])
-            for cv, result in zip(retrieved_cvs, results, strict=True)
-        ]
+        feature_rows = []
+        for cv, result in zip(retrieved_cvs, results, strict=True):
+            # semantic_score from matcher is on 0–100 scale; normalise to 0–1.
+            sem = max(0.0, min(1.0, float(result.get("semantic_score", 0.0)) / 100.0))
+            faiss_sim = float(result.get("faiss_similarity", 0.0))
+            feat = build_pair_features(cv, job, semantic_similarity=sem, faiss_similarity=faiss_sim)
+            feature_rows.append(feat)
+
         probabilities = xgb_scorer.predict_probabilities(feature_rows)
-        for result, features, probability in zip(results, feature_rows, probabilities, strict=True):
+        for result, probability in zip(results, probabilities, strict=True):
             result["deterministic_score"] = result["final_score"]
             result["xgb_probability"] = round(float(probability), 6)
             result["final_score"] = round(float(probability), 6)
-            result["education_score"] = round(features["education_score"] * 100.0, 2)
         return sorted(results, key=lambda result: result["xgb_probability"], reverse=True)
 
 

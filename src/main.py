@@ -108,8 +108,8 @@ def load_job(path: str, job_index: int = 0, job_title: str | None = None) -> dic
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Rank CVs against one job description.")
-    parser.add_argument("--cv", default="preprocessed_cvs.csv", help="CSV with candidate_name and cv_text columns")
-    parser.add_argument("--job", default="job_roles_IT_filtered.csv", help="CSV with job_title and job_description columns")
+    parser.add_argument("--cv", default="data/preprocess/preprocessed_cvs.csv", help="CSV with candidate_name and cv_text columns")
+    parser.add_argument("--job", default="example_data/jd/job_roles_IT_filtered.csv", help="CSV with job_title and job_description columns")
     parser.add_argument("--job-index", type=int, default=0,
                         help="Zero-based job row to rank against (default: 0)")
     parser.add_argument("--job-title", help="Job title to match against (overrides --job-index if matched)")
@@ -252,3 +252,11 @@ def _print_explanations(
 
 if __name__ == "__main__":
     main()
+
+''''
+.venv/bin/python -m src.main \
+  --cv data/preprocess/preprocessed_cvs.csv \
+  --job example_data/jd/job_roles_IT_filtered.csv \
+  --faiss-index data/faiss/cv.index \
+  --faiss-metadata data/faiss/cv_metadata.json
+'''

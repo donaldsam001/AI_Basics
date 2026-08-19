@@ -9,8 +9,8 @@ from resume_parser import parse_resume
 def main():
     """Load CVs, preprocess their text, and save the cleaned data."""
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    folder_path = os.path.join(base_dir, "example_data/docx")
-    output_path = os.path.join(base_dir, "preprocessed_cvs.csv")
+    folder_path = os.path.join(base_dir, "example_data/pdf")
+    output_path = os.path.join(base_dir, "data/preprocess/preprocessed_cvs.csv")
 
     # 1. Extract text from PDF and DOCX CVs.
     cvs_df = load_cvs_to_dataframe(folder_path)
@@ -40,4 +40,8 @@ python -m src.main --cv preprocessed_cvs.csv --job example_data/jd/job_roles_IT_
 /home/donaldsam/Downloads/AI_Basic/preprocessed_cvs.csv
 /home/donaldsam/Downloads/AI_Basic/example_data/job_roles_IT_filtered.csv
 /home/donaldsam/Downloads/AI_Basic/example_data/ml_resume_dataset_4500.csv
+data/ats_resume_dataset_elite_v3.csv
+python -m src.models.train_xgboost \
+  --dataset data/ats_resume_dataset_elite_v3.csv \
+  --output data/models/cv_job_xgb.json
 '''

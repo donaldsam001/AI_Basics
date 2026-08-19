@@ -23,7 +23,7 @@ import numpy as np
 
 from src.config import PipelineConfig
 from src.embeddings import EmbeddingCache, EmbeddingModel
-from src.features import build_cv_jd_features
+from src.models.feature_builder import build_pair_features
 from src.llm.evidence import build_evidence
 from src.llm.prompts import build_matching_explanation_prompt
 from src.llm.qwen import QwenLLM
@@ -129,12 +129,18 @@ class CVJobIntelligentMatchingSystem:
         self.xgb_scorer = xgb_scorer
         if self.xgb_scorer is None:
             try:
-                self.xgb_scorer = XGBCandidateScorer.load(
-                    self.config.xgboost_model_path,
-                    self.config.xgboost_features_path,
-                )
+                pipeline_path = Path(self.config.xgboost_model_path).parent / "xgb_pipeline.joblib"
+                schema_path = Path(self.config.xgboost_model_path).parent / "xgb_schema.json"
+                if pipeline_path.is_file():
+                    self.xgb_scorer = XGBCandidateScorer.load_pipeline(pipeline_path, schema_path)
+                else:
+                    self.xgb_scorer = XGBCandidateScorer.load(
+                        self.config.xgboost_model_path,
+                        self.config.xgboost_features_path,
+                    )
             except Exception as err:
                 logger.warning("XGBoost scorer unavailable: %s", err)
+
 
         self.qwen_llm = qwen_llm
         if self.qwen_llm is None:
@@ -246,9 +252,13 @@ class CVJobIntelligentMatchingSystem:
             match_res = self.matcher.match(cv, job, cv_emb, job_embedding)
             match_res["faiss_similarity"] = float(faiss_sim)
 
-            # Step 6: Feature Engineering
-            pair_features = build_cv_jd_features(
-                cv, job, semantic_score=float(faiss_sim * 100)
+            # Step 6: Feature Engineering — using CANONICAL feature builder
+            # (same function as training → no schema drift)
+            semantic_sim = max(0.0, min(1.0, float(match_res.get("semantic_score", 0.0)) / 100.0))
+            pair_features = build_pair_features(
+                cv, job,
+                semantic_similarity=semantic_sim,
+                faiss_similarity=float(faiss_sim),
             )
 
             # Step 7: XGBoost Prediction
