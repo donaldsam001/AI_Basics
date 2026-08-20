@@ -25,4 +25,3 @@ def get_service(registry: ModelRegistry = Depends(get_registry)) -> MatchingServ
     it is safe to create a new instance per request.
     """
     return MatchingService(registry)
-}
