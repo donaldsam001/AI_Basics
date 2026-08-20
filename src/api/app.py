@@ -1,13 +1,37 @@
-"""Versioned FastAPI boundary; ML work stays in ``src.services``."""
 from __future__ import annotations
-import json, logging
+
+import json
+import logging
 from contextlib import asynccontextmanager
 from io import BytesIO
 from time import perf_counter
 from typing import Callable
 from uuid import uuid4
 
-from src.api.schemas import ExplainRequest, ExplainResponse, HealthResponse, JobRequest, MatchRequest, MatchResponse, ReadyResponse, SearchRequest, SearchResponse
+from fastapi import (
+    FastAPI,
+    File,
+    Form,
+    HTTPException,
+    Request,
+    UploadFile,
+)
+from fastapi.concurrency import run_in_threadpool
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+from src.api.schemas import (
+    ExplainRequest,
+    ExplainResponse,
+    HealthResponse,
+    JobRequest,
+    MatchRequest,
+    MatchResponse,
+    ReadyResponse,
+    SearchRequest,
+    SearchResponse,
+)
 from src.config import PipelineConfig
 from src.services.matching_service import MatchingService, ModelRegistry, ServiceUnavailableError
 
@@ -39,14 +63,7 @@ def _candidate(row: dict) -> dict:
     return {"candidate_id": row.get("candidate_id"), "candidate_name": row.get("candidate_name", "Unknown Candidate"), "rank": row.get("rank"), "faiss_similarity": row.get("faiss_similarity"), "match_probability": row.get("match_probability", row.get("xgb_probability", 0.0)), "matched_skills": row.get("matched_skills", []), "missing_skills": row.get("missing_required_skills", []), "recommendation": row.get("recommendation"), "explanation": row.get("explanation"), "explanation_status": row.get("explanation_status")}
 
 def create_app(config: PipelineConfig | None = None, registry_factory: Callable[[PipelineConfig], ModelRegistry] = ModelRegistry):
-    """Factory with injectable registry, keeping API tests fully offline."""
-    try:
-        from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-        from fastapi.concurrency import run_in_threadpool
-        from fastapi.exceptions import RequestValidationError
-        from fastapi.middleware.cors import CORSMiddleware
-        from fastapi.responses import JSONResponse
-    except ImportError as exc: raise RuntimeError("FastAPI is required; install requirements.txt") from exc
+
     config = config or PipelineConfig()
     @asynccontextmanager
     async def lifespan(application: FastAPI):
@@ -85,19 +102,99 @@ def create_app(config: PipelineConfig | None = None, registry_factory: Callable[
             job = service(request).build_job(body.job.dict()); rows, latency = await run_in_threadpool(service(request).match, job, body.top_k, body.explain)
             return {"job_title": job.get("job_title", "Untitled Job"), "results": [_candidate(x) for x in rows], "latency": latency}
         except ServiceUnavailableError as exc: raise HTTPException(503, _error("MODEL_NOT_READY", str(exc)))
-    @app.post("/api/v1/match/upload", response_model=MatchResponse, tags=["Matching"])
-    async def match_upload(request: Request, cv: UploadFile = File(...), job: str = Form(...), top_k: int = Form(1), explain: bool = Form(False)):
-        if not 1 <= top_k <= config.api_top_k_max: raise HTTPException(422, _error("VALIDATION_ERROR", f"top_k must be between 1 and {config.api_top_k_max}"))
+    # @app.post("/api/v1/match/upload", response_model=MatchResponse, tags=["Matching"])
+    # async def match_upload(request: Request, cv: UploadFile = File(...), job: str = Form(...), top_k: int = Form(1), explain: bool = Form(False)):
+    #     if not 1 <= top_k <= config.api_top_k_max: raise HTTPException(422, _error("VALIDATION_ERROR", f"top_k must be between 1 and {config.api_top_k_max}"))
+    #     content = await cv.read(config.max_upload_size + 1)
+    #     if len(content) > config.max_upload_size: raise HTTPException(413, _error("FILE_TOO_LARGE", "CV exceeds configured upload size"))
+    #     try:
+    #         raw_cv, parsed = _extract_upload(cv.filename or "", cv.content_type, content), JobRequest(**json.loads(job))
+    #         parsed_job = service(request).build_job(parsed.dict()); result, latency = await run_in_threadpool(service(request).evaluate_cv, raw_cv, parsed_job, explain)
+    #         return {"job_title": parsed_job.get("job_title", "Untitled Job"), "results": [_candidate(result)], "latency": latency}
+    #     except ValueError as exc:
+    #         code = str(exc); statuses = {"UNSUPPORTED_MEDIA_TYPE": 415, "EMPTY_FILE": 400, "INVALID_DOCUMENT": 400}
+    #         raise HTTPException(statuses.get(code, 422), _error(code if code in statuses else "VALIDATION_ERROR", "Invalid CV upload" if code in statuses else code))
+    #     except ServiceUnavailableError as exc: raise HTTPException(503, _error("MODEL_NOT_READY", str(exc)))
+    
+    @app.post(
+    "/api/v1/match/upload",
+    response_model=MatchResponse,
+    tags=["Matching"],)
+    async def match_upload(
+        request: Request,
+        cv: UploadFile = File(...),
+        job: str = Form(...),
+        top_k: int = Form(1),
+        explain: bool = Form(False),
+    ):
+        if not 1 <= top_k <= config.api_top_k_max:
+            raise HTTPException(
+                status_code=422,
+                detail=_error(
+                    "VALIDATION_ERROR",
+                    f"top_k must be between 1 and {config.api_top_k_max}",
+                ),
+            )
+
         content = await cv.read(config.max_upload_size + 1)
-        if len(content) > config.max_upload_size: raise HTTPException(413, _error("FILE_TOO_LARGE", "CV exceeds configured upload size"))
+
+        if len(content) > config.max_upload_size:
+            raise HTTPException(
+                status_code=413,
+                detail=_error(
+                    "FILE_TOO_LARGE",
+                    "CV exceeds configured upload size",
+                ),
+            )
+
         try:
-            raw_cv, parsed = _extract_upload(cv.filename or "", cv.content_type, content), JobRequest(**json.loads(job))
-            parsed_job = service(request).build_job(parsed.dict()); result, latency = await run_in_threadpool(service(request).evaluate_cv, raw_cv, parsed_job, explain)
-            return {"job_title": parsed_job.get("job_title", "Untitled Job"), "results": [_candidate(result)], "latency": latency}
+            raw_cv = _extract_upload(
+                cv.filename or "",
+                cv.content_type,
+                content,
+            )
+
+            parsed = JobRequest(**json.loads(job))
+            parsed_job = service(request).build_job(
+                parsed.model_dump()
+            )
+
+            result, latency = await run_in_threadpool(
+                service(request).evaluate_cv,
+                raw_cv,
+                parsed_job,
+                explain,
+            )
+
+            return {
+                "job_title": parsed_job.get("job_title", "Untitled Job"),
+                "results": [_candidate(result)],
+                "latency": latency,
+            }
+
         except ValueError as exc:
-            code = str(exc); statuses = {"UNSUPPORTED_MEDIA_TYPE": 415, "EMPTY_FILE": 400, "INVALID_DOCUMENT": 400}
-            raise HTTPException(statuses.get(code, 422), _error(code if code in statuses else "VALIDATION_ERROR", "Invalid CV upload" if code in statuses else code))
-        except ServiceUnavailableError as exc: raise HTTPException(503, _error("MODEL_NOT_READY", str(exc)))
+            code = str(exc)
+
+            statuses = {
+                "UNSUPPORTED_MEDIA_TYPE": 415,
+                "EMPTY_FILE": 400,
+                "INVALID_DOCUMENT": 400,
+            }
+
+            raise HTTPException(
+                status_code=statuses.get(code, 422),
+                detail=_error(
+                    code if code in statuses else "VALIDATION_ERROR",
+                    "Invalid CV upload" if code in statuses else code,
+                ),
+            )
+
+        except ServiceUnavailableError as exc:
+            raise HTTPException(
+                status_code=503,
+                detail=_error("MODEL_NOT_READY", str(exc)),
+            )
+    
     @app.post("/api/v1/explain", response_model=ExplainResponse, tags=["Explanations"])
     async def explain(request: Request, body: ExplainRequest):
         job = service(request).build_job(body.job.dict()); text, status = await run_in_threadpool(service(request).explain_evidence, body.candidate.dict(), job, body.match_probability)

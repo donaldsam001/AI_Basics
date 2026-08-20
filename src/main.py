@@ -125,6 +125,8 @@ def main() -> None:
     parser.add_argument("--explanation-top-k", type=int, default=5,
                         help="Top candidates to generate Qwen explanations for (default: 5)")
     args = parser.parse_args()
+    if bool(args.faiss_index) != bool(args.faiss_metadata):
+        parser.error("--faiss-index and --faiss-metadata must be provided together.")
     cvs = load_cvs(args.cv)
     job = load_job(args.job, args.job_index, args.job_title)
 

@@ -102,3 +102,12 @@ pytest -q
 
 # 4️⃣ Build & run container
 docker compose up --build   # (requires a docker-compose.yml that mounts model volumes)
+
+# HF
+
+hf download \
+    Qwen/Qwen3-0.6B-GGUF \
+    Qwen3-0.6B-Q4_K_M.gguf \
+    --local-dir ~/data/models/qwen
+
+    
