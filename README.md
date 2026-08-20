@@ -90,3 +90,15 @@ Then retrieve and rerank candidates:
 .venv/bin/uvicorn src.api.app:create_app --factory --host 0.0.0.0 --port 8000
 
 .venv/bin/uvicorn src.api.app:create_app --factory --host 0.0.0.0 --port 8000 --reload
+
+# 1️⃣ Install deps
+pip install -r requirements.txt
+
+# 2️⃣ Run locally (development mode)
+uvicorn src.api.app:app --reload --host 0.0.0.0 --port 8000
+
+# 3️⃣ Run the test suite (offline)
+pytest -q
+
+# 4️⃣ Build & run container
+docker compose up --build   # (requires a docker-compose.yml that mounts model volumes)

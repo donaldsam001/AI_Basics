@@ -103,6 +103,7 @@ class CVJobMatcher:
         )
         scores = calculate_final_score(semantic, required["score"], preferred["score"], experience, self.weights)
         result = {
+            "candidate_id": cv.get("candidate_id") or cv.get("file_name"),
             "candidate_name": cv.get("candidate_name") or "Unknown Candidate",
             "job_title": job.get("job_title") or "Untitled Job", **scores,
             "matched_skills": required["matched"],

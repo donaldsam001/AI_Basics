@@ -1,206 +1,107 @@
-"""FastAPI application for the CV–Job matching pipeline.
-
-Endpoints
----------
-POST /match
-    Accept a job description, rank all indexed CVs against it, and
-    return the top candidates with optional Qwen explanations.
-
-GET /health
-    Simple liveness probe.
-
-Architecture
-------------
-The application loads all heavy models once at startup via the
-``lifespan`` context manager and shares them across requests through
-``app.state``.  The pipeline handles failures gracefully:
-
-* If XGBoost is unavailable, the baseline deterministic score is used.
-* If Qwen is unavailable, explanations are omitted but ranking is intact.
-* FAISS retrieval failures return a clear 503.
-"""
-
+"""Versioned FastAPI boundary; ML work stays in ``src.services``."""
 from __future__ import annotations
-
-import logging
+import json, logging
 from contextlib import asynccontextmanager
-from typing import Any
+from io import BytesIO
+from time import perf_counter
+from typing import Callable
+from uuid import uuid4
 
+from src.api.schemas import ExplainRequest, ExplainResponse, HealthResponse, JobRequest, MatchRequest, MatchResponse, ReadyResponse, SearchRequest, SearchResponse
 from src.config import PipelineConfig
-from src.main import load_cvs, load_job
-from src.pipeline import MatchingPipeline, create_pipeline
+from src.services.matching_service import MatchingService, ModelRegistry, ServiceUnavailableError
 
 logger = logging.getLogger(__name__)
+SERVICE_NAME, VERSION = "ai-cv-matching", "1.0.0"
 
+def _error(code: str, message: str) -> dict: return {"error": {"code": code, "message": message}}
 
-def create_app(config: PipelineConfig | None = None):
-    """Factory that creates a configured FastAPI application.
-
-    The heavy import of ``fastapi`` is deferred so the rest of the package
-    can be imported without it.
-    """
+def _extract_upload(filename: str, content_type: str | None, payload: bytes) -> str:
+    """Extract text from validated in-memory PDF/DOCX data only."""
+    suffix = filename.rsplit(".", 1)[-1].casefold() if "." in filename else ""
+    allowed = {"pdf": {"application/pdf", "application/x-pdf", "application/octet-stream"}, "docx": {"application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/octet-stream"}}
+    if suffix not in allowed or content_type not in allowed[suffix]: raise ValueError("UNSUPPORTED_MEDIA_TYPE")
+    if not payload: raise ValueError("EMPTY_FILE")
     try:
-        from fastapi import FastAPI, HTTPException
+        if suffix == "pdf":
+            from pypdf import PdfReader
+            text = "\n".join(page.extract_text() or "" for page in PdfReader(BytesIO(payload)).pages)
+        else:
+            from docx import Document
+            text = "\n".join(item.text for item in Document(BytesIO(payload)).paragraphs)
+    except Exception as exc:
+        logger.info("CV extraction rejected type=%s error=%s", suffix, type(exc).__name__)
+        raise ValueError("INVALID_DOCUMENT") from exc
+    if not text.strip(): raise ValueError("EMPTY_FILE")
+    return text
+
+def _candidate(row: dict) -> dict:
+    return {"candidate_id": row.get("candidate_id"), "candidate_name": row.get("candidate_name", "Unknown Candidate"), "rank": row.get("rank"), "faiss_similarity": row.get("faiss_similarity"), "match_probability": row.get("match_probability", row.get("xgb_probability", 0.0)), "matched_skills": row.get("matched_skills", []), "missing_skills": row.get("missing_required_skills", []), "recommendation": row.get("recommendation"), "explanation": row.get("explanation"), "explanation_status": row.get("explanation_status")}
+
+def create_app(config: PipelineConfig | None = None, registry_factory: Callable[[PipelineConfig], ModelRegistry] = ModelRegistry):
+    """Factory with injectable registry, keeping API tests fully offline."""
+    try:
+        from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+        from fastapi.concurrency import run_in_threadpool
+        from fastapi.exceptions import RequestValidationError
         from fastapi.middleware.cors import CORSMiddleware
-        from pydantic import BaseModel, Field
-    except ImportError as error:
-        raise RuntimeError(
-            "FastAPI is required for the API server. "
-            "Install it with: pip install fastapi uvicorn"
-        ) from error
-
+        from fastapi.responses import JSONResponse
+    except ImportError as exc: raise RuntimeError("FastAPI is required; install requirements.txt") from exc
     config = config or PipelineConfig()
-
-    # ------------------------------------------------------------------
-    # Request / response models
-    # ------------------------------------------------------------------
-
-    class MatchRequest(BaseModel):
-        """Incoming matching request."""
-        job_csv_path: str = Field(..., description="Path to a CSV with job description rows")
-        job_index: int = Field(0, description="Zero-based row index of the job to match")
-        cv_csv_path: str | None = Field(None, description="Override CV data path")
-        retrieval_top_k: int | None = Field(None, description="Override FAISS retrieval depth")
-        ranking_top_k: int | None = Field(None, description="Override ranking cut-off")
-        explanation_top_k: int | None = Field(None, description="Override explanation count")
-
-    class CandidateResponse(BaseModel):
-        """One ranked candidate in the response."""
-        candidate_name: str
-        rank: int | None = None
-        match_probability: float | None = None
-        retrieval_score: float | None = None
-        matched_skills: list[str] = []
-        missing_skills: list[str] = []
-        matched_preferred_skills: list[str] = []
-        semantic_score: float | None = None
-        required_skill_score: float | None = None
-        preferred_skill_score: float | None = None
-        experience_score: float | None = None
-        baseline_score: float | None = None
-        explanation: str | None = None
-        explanation_error: str | None = None
-
-    class MatchResponse(BaseModel):
-        """Ranked candidates for a single job."""
-        job_title: str
-        candidates: list[CandidateResponse]
-
-    # ------------------------------------------------------------------
-    # Lifespan: load models once
-    # ------------------------------------------------------------------
-
     @asynccontextmanager
-    async def lifespan(app: FastAPI):
-        logger.info("Loading pipeline components...")
-        pipeline = create_pipeline(config)
-        app.state.pipeline = pipeline
-        app.state.config = config
-
-        # Preload CVs if the path exists.
-        try:
-            app.state.cvs = load_cvs(config.cv_path)
-            logger.info("Loaded %d CVs from %s", len(app.state.cvs), config.cv_path)
-        except Exception as error:
-            logger.warning("CVs not preloaded: %s", error)
-            app.state.cvs = None
-
-        # Preload FAISS stores if the paths exist.
-        app.state.vector_store = None
-        app.state.metadata_store = None
-        try:
-            from src.vector_store import FAISSStore, MetadataStore
-            app.state.vector_store = FAISSStore.load(config.faiss_index_path)
-            app.state.metadata_store = MetadataStore(config.faiss_metadata_path)
-            logger.info("FAISS index loaded: %d vectors", app.state.vector_store.size)
-        except Exception as error:
-            logger.warning("FAISS stores not loaded: %s", error)
-
-        yield
-
-    # ------------------------------------------------------------------
-    # Application
-    # ------------------------------------------------------------------
-
-    app = FastAPI(
-        title="CV–Job Matching API",
-        description=(
-            "Rank CVs against a job description using FAISS retrieval, "
-            "rule-based matching, XGBoost scoring, and optional Qwen3-4B "
-            "explanations."
-        ),
-        version="1.0.0",
-        lifespan=lifespan,
-    )
-
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
-    # ------------------------------------------------------------------
-    # Routes
-    # ------------------------------------------------------------------
-
-    @app.get("/health")
-    async def health():
-        pipeline: MatchingPipeline = app.state.pipeline
-        return {
-            "status": "ok",
-            "xgboost_available": pipeline.xgb_scorer is not None,
-            "qwen_available": pipeline.qwen is not None,
-            "faiss_loaded": app.state.vector_store is not None,
-            "cvs_loaded": app.state.cvs is not None and len(app.state.cvs) > 0,
-        }
-
-    @app.post("/match", response_model=MatchResponse)
-    async def match_candidates(request: MatchRequest):
-        pipeline: MatchingPipeline = app.state.pipeline
-        active_config = app.state.config
-
-        # Override top-K values if the request supplies them.
-        if request.retrieval_top_k is not None:
-            pipeline.config.retrieval_top_k = request.retrieval_top_k
-        if request.ranking_top_k is not None:
-            pipeline.config.ranking_top_k = request.ranking_top_k
-        if request.explanation_top_k is not None:
-            pipeline.config.explanation_top_k = request.explanation_top_k
-
-        # Load job.
-        try:
-            job = load_job(request.job_csv_path, request.job_index)
-        except (FileNotFoundError, ValueError) as error:
-            raise HTTPException(status_code=400, detail=str(error))
-
-        # Load CVs.
-        cvs = app.state.cvs
-        if request.cv_csv_path:
-            try:
-                cvs = load_cvs(request.cv_csv_path)
-            except (FileNotFoundError, ValueError) as error:
-                raise HTTPException(status_code=400, detail=str(error))
-        if not cvs:
-            raise HTTPException(status_code=400, detail="No CV data available")
-
-        # Run the pipeline.
-        try:
-            results = pipeline.rank_and_explain(
-                cvs, job,
-                vector_store=app.state.vector_store,
-                metadata_store=app.state.metadata_store,
-            )
-        except Exception as error:
-            logger.exception("Pipeline error")
-            raise HTTPException(status_code=503, detail=f"Pipeline error: {error}")
-
-        # Restore original top-K values.
-        pipeline.config.retrieval_top_k = active_config.retrieval_top_k
-        pipeline.config.ranking_top_k = active_config.ranking_top_k
-        pipeline.config.explanation_top_k = active_config.explanation_top_k
-
-        response = pipeline.build_api_response(job, results)
+    async def lifespan(application: FastAPI):
+        registry = registry_factory(config); registry.load()
+        application.state.registry, application.state.service = registry, MatchingService(registry)
+        logger.info("Matching service initialized: %s", registry.readiness()); yield
+    app = FastAPI(title="AI CV Matching API", version=VERSION, lifespan=lifespan)
+    origins = [x.strip() for x in config.cors_origins.split(",") if x.strip()]
+    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["GET", "POST"], allow_headers=["Content-Type", "X-Request-ID"])
+    @app.middleware("http")
+    async def request_logging(request: Request, call_next):
+        request_id, started = request.headers.get("X-Request-ID") or str(uuid4()), perf_counter()
+        try: response = await call_next(request)
+        except Exception:
+            logger.exception("Unhandled request error request_id=%s endpoint=%s", request_id, request.url.path)
+            return JSONResponse(_error("INTERNAL_ERROR", "Unexpected server error"), 500, headers={"X-Request-ID": request_id})
+        response.headers["X-Request-ID"] = request_id
+        logger.info("request_id=%s endpoint=%s status=%d latency_ms=%.2f", request_id, request.url.path, response.status_code, (perf_counter()-started)*1000)
         return response
-
+    @app.exception_handler(RequestValidationError)
+    async def validation_error(_: Request, __: RequestValidationError): return JSONResponse(_error("VALIDATION_ERROR", "Invalid request"), 422)
+    def service(request: Request) -> MatchingService: return request.app.state.service
+    @app.get("/health", response_model=HealthResponse, tags=["Operations"])
+    async def health(): return {"status": "ok", "service": SERVICE_NAME, "version": VERSION}
+    @app.get("/ready", response_model=ReadyResponse, tags=["Operations"])
+    async def ready(request: Request): return request.app.state.registry.readiness()
+    @app.post("/api/v1/search", response_model=SearchResponse, tags=["Matching"])
+    async def search(request: Request, body: SearchRequest):
+        try:
+            job = service(request).build_job(body.job.dict()); rows, latency = await run_in_threadpool(service(request).search, job, body.top_k)
+            return {"results": rows, "latency": latency}
+        except ServiceUnavailableError as exc: raise HTTPException(503, _error("MODEL_NOT_READY", str(exc)))
+    @app.post("/api/v1/match", response_model=MatchResponse, tags=["Matching"])
+    async def match(request: Request, body: MatchRequest):
+        try:
+            job = service(request).build_job(body.job.dict()); rows, latency = await run_in_threadpool(service(request).match, job, body.top_k, body.explain)
+            return {"job_title": job.get("job_title", "Untitled Job"), "results": [_candidate(x) for x in rows], "latency": latency}
+        except ServiceUnavailableError as exc: raise HTTPException(503, _error("MODEL_NOT_READY", str(exc)))
+    @app.post("/api/v1/match/upload", response_model=MatchResponse, tags=["Matching"])
+    async def match_upload(request: Request, cv: UploadFile = File(...), job: str = Form(...), top_k: int = Form(1), explain: bool = Form(False)):
+        if not 1 <= top_k <= config.api_top_k_max: raise HTTPException(422, _error("VALIDATION_ERROR", f"top_k must be between 1 and {config.api_top_k_max}"))
+        content = await cv.read(config.max_upload_size + 1)
+        if len(content) > config.max_upload_size: raise HTTPException(413, _error("FILE_TOO_LARGE", "CV exceeds configured upload size"))
+        try:
+            raw_cv, parsed = _extract_upload(cv.filename or "", cv.content_type, content), JobRequest(**json.loads(job))
+            parsed_job = service(request).build_job(parsed.dict()); result, latency = await run_in_threadpool(service(request).evaluate_cv, raw_cv, parsed_job, explain)
+            return {"job_title": parsed_job.get("job_title", "Untitled Job"), "results": [_candidate(result)], "latency": latency}
+        except ValueError as exc:
+            code = str(exc); statuses = {"UNSUPPORTED_MEDIA_TYPE": 415, "EMPTY_FILE": 400, "INVALID_DOCUMENT": 400}
+            raise HTTPException(statuses.get(code, 422), _error(code if code in statuses else "VALIDATION_ERROR", "Invalid CV upload" if code in statuses else code))
+        except ServiceUnavailableError as exc: raise HTTPException(503, _error("MODEL_NOT_READY", str(exc)))
+    @app.post("/api/v1/explain", response_model=ExplainResponse, tags=["Explanations"])
+    async def explain(request: Request, body: ExplainRequest):
+        job = service(request).build_job(body.job.dict()); text, status = await run_in_threadpool(service(request).explain_evidence, body.candidate.dict(), job, body.match_probability)
+        return {"explanation": text, "explanation_status": status}
     return app
+
+app = create_app()

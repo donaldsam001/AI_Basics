@@ -41,6 +41,13 @@ def _env_str(name: str, default: str) -> str:
     return os.environ.get(name, default)
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().casefold() in {"1", "true", "yes", "on"}
+
+
 @dataclass
 class PipelineConfig:
     """Complete pipeline configuration with environment-variable fallbacks."""
@@ -88,3 +95,8 @@ class PipelineConfig:
     # --- API -------------------------------------------------------------
     api_host: str = field(default_factory=lambda: _env_str("API_HOST", "0.0.0.0"))
     api_port: int = field(default_factory=lambda: _env_int("API_PORT", 8000))
+    cors_origins: str = field(default_factory=lambda: _env_str("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"))
+    max_upload_size: int = field(default_factory=lambda: _env_int("MAX_UPLOAD_SIZE", 10 * 1024 * 1024))
+    api_top_k_default: int = field(default_factory=lambda: _env_int("TOP_K_DEFAULT", 10))
+    api_top_k_max: int = field(default_factory=lambda: _env_int("TOP_K_MAX", 100))
+    qwen_enabled: bool = field(default_factory=lambda: _env_bool("QWEN_ENABLED", False))
