@@ -18,7 +18,9 @@ class MainCliTests(unittest.TestCase):
 
         with (
             patch.object(sys, "argv", ["src.main"]),
-            patch.object(cli, "load_cvs", return_value=[{"candidate_name": "Ada"}]),
+            patch.object(cli, "load_cvs", return_value=[
+                {"candidate_id": "1", "candidate_name": "Ada", "text": "Java dev"}
+            ]),
             patch.object(cli, "load_job", return_value={"job_title": "Engineer"}),
             patch.object(cli, "CVJobMatcher", return_value=matcher),
         ):
