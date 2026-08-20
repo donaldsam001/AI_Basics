@@ -106,3 +106,15 @@ class PipelineConfig:
     api_top_k_default: int = field(default_factory=lambda: _env_int("TOP_K_DEFAULT", 10))
     api_top_k_max: int = field(default_factory=lambda: _env_int("TOP_K_MAX", 100))
     qwen_enabled: bool = field(default_factory=lambda: _env_bool("QWEN_ENABLED", False))
+
+    # --- Supabase Database -----------------------------------------------
+    supabase_url: str = field(
+        default_factory=lambda: _env_str("SUPABASE_URL", ""),
+    )
+    supabase_key: str = field(
+        default_factory=lambda: _env_str(
+            "SUPABASE_KEY",
+            _env_str("SUPABASE_SERVICE_ROLE_KEY", ""),
+        ),
+    )
+

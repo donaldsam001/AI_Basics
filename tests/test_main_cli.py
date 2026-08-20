@@ -23,6 +23,7 @@ class MainCliTests(unittest.TestCase):
             ]),
             patch.object(cli, "load_job", return_value={"job_title": "Engineer"}),
             patch.object(cli, "CVJobMatcher", return_value=matcher),
+            patch("src.main.Path.is_file", return_value=False),
         ):
             cli.main()
 
