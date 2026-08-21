@@ -33,9 +33,11 @@ from src.api.schemas import (
     SearchResponse,
 )
 from src.config import PipelineConfig
+from src.database import check_supabase_connection, get_supabase_client
 from src.services.matching_service import MatchingService, ModelRegistry, ServiceUnavailableError
 
 logger = logging.getLogger(__name__)
+
 SERVICE_NAME, VERSION = "ai-cv-matching", "1.0.0"
 
 def _error(code: str, message: str) -> dict: return {"error": {"code": code, "message": message}}
