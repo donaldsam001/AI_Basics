@@ -1,0 +1,103 @@
+---
+config:
+  layout: elk
+  theme: neo
+---
+flowchart TB
+ subgraph ClientLayer["Client Layer"]
+        User["User / Recruiter"]
+        APIClient["API Client"]
+  end
+ subgraph APILayer["API Layer - FastAPI"]
+        FastAPI["FastAPI Application"]
+        HealthEndpoint["/health"]
+        ReadyEndpoint["/ready"]
+        SearchEndpoint["/api/v1/search"]
+        MatchEndpoint["/api/v1/match"]
+        UploadEndpoint["/api/v1/match/upload"]
+        ExplainEndpoint["/api/v1/explain"]
+        DependencyInjection["Dependency Injection<br>dependencies.py"]
+  end
+ subgraph ServiceLayer["Service Layer"]
+        MatchingService["MatchingService"]
+        ModelRegistry["ModelRegistry"]
+        Preprocessing["CV/Job<br>Preprocessing"]
+  end
+ subgraph MLPipeline["ML Processing Layer"]
+        EmbeddingModel["Embedding Model<br>sentence-transformers"]
+        FAISSRetrieval["FAISS Vector Search"]
+        FeatureEngineering["Feature Engineering"]
+        XGBoostModel["XGBoost Scorer"]
+        QwenLLM["Qwen LLM<br>optional explanation"]
+  end
+ subgraph PersistenceLayer["Data & Persistence Layer"]
+        CVCorpus["CV Corpus<br>candidate embeddings"]
+        CandidateMetadata["Candidate Metadata<br>FAISS metadata"]
+        FAISSIndex["FAISS Index<br>vector index"]
+        XGBoostArtifact["XGBoost Model<br>Artifact"]
+        QwenArtifact["Qwen Model<br>Artifact"]
+        DatabaseClient["Database Client<br>supabase.py"]
+        SupabaseDB[("Supabase Database<br>PostgreSQL")]
+        CandidatesTable[("candidates table")]
+        JobsTable[("jobs table")]
+        MatchesTable[("matches table")]
+  end
+    User -- HTTP Request --> APIClient
+    APIClient -- Request --> FastAPI
+    FastAPI --> HealthEndpoint & ReadyEndpoint & SearchEndpoint & MatchEndpoint & UploadEndpoint & ExplainEndpoint
+    FastAPI -- inject --> DependencyInjection
+    DependencyInjection -- instantiate --> MatchingService
+    MatchingService -- get models --> ModelRegistry
+    ModelRegistry -- load --> FAISSIndex & CVCorpus & CandidateMetadata & XGBoostArtifact & QwenArtifact
+    MatchingService -- preprocess --> Preprocessing
+    Preprocessing -- embed --> EmbeddingModel
+    EmbeddingModel -- vector query --> FAISSRetrieval
+    FAISSRetrieval -- "retrieve top-K" --> CVCorpus
+    FAISSRetrieval -- get metadata --> CandidateMetadata
+    MatchingService -- construct features --> FeatureEngineering
+    FeatureEngineering -- score --> XGBoostModel
+    XGBoostModel -- probability --> MatchingService
+    MatchingService -- optional explain --> QwenLLM
+    QwenLLM -- explanation --> MatchingService
+    MatchingService -. persist results<br>available but<br>not in main flow .-> DatabaseClient
+    DatabaseClient -. read/write .-> SupabaseDB
+    SupabaseDB --> CandidatesTable & JobsTable & MatchesTable
+    CandidatesTable -. optional reference .-> MatchingService
+    JobsTable -. optional reference .-> MatchingService
+    MatchesTable -. optional persist .-> MatchingService
+
+     User:::client
+     APIClient:::client
+     FastAPI:::api
+     HealthEndpoint:::api
+     ReadyEndpoint:::api
+     SearchEndpoint:::api
+     MatchEndpoint:::api
+     UploadEndpoint:::api
+     ExplainEndpoint:::api
+     DependencyInjection:::api
+     MatchingService:::service
+     ModelRegistry:::service
+     Preprocessing:::service
+     EmbeddingModel:::ml
+     FAISSRetrieval:::ml
+     FeatureEngineering:::ml
+     XGBoostModel:::ml
+     QwenLLM:::ml
+     CVCorpus:::persistence
+     CandidateMetadata:::persistence
+     FAISSIndex:::persistence
+     XGBoostArtifact:::persistence
+     QwenArtifact:::persistence
+     DatabaseClient:::database
+     SupabaseDB:::database
+     CandidatesTable:::database
+     JobsTable:::database
+     MatchesTable:::database
+    classDef client fill:#f0f9ff,stroke:#38bdf8
+    classDef api fill:#eef2ff,stroke:#818cf8
+    classDef service fill:#f5f3ff,stroke:#a78bfa
+    classDef ml fill:#fef2f2,stroke:#f87171
+    classDef persistence fill:#f0fdf4,stroke:#4ade80
+    classDef database fill:#fff7ed,stroke:#fb923c
+    classDef optional fill:#fefce8,stroke:#facc15
