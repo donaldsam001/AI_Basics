@@ -240,25 +240,41 @@ def train_xgboost(
 
     # ── Build sklearn Pipeline (scaler + XGBoost) ─────────────────────────────
     # StandardScaler is fitted ONLY on training data (no leakage).
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_val_scaled = scaler.transform(X_val)
+
     xgb_options: dict[str, Any] = {
-        "n_estimators": 300,
+        "n_estimators": 1000,
         "learning_rate": 0.03,
-        "max_depth": 4,
+        "max_depth": 6,
         "subsample": 0.8,
         "colsample_bytree": 0.8,
         "scale_pos_weight": scale_pos_weight,
         "eval_metric": "logloss",
         "random_state": random_state,
-        "n_jobs": 1,
+        "n_jobs": -1,
+        "early_stopping_rounds": 50,
     }
     xgb_options.update(model_options or {})
 
-    pipeline = Pipeline(steps=[
-        ("scaler", StandardScaler()),
-        ("model", _xgboost_classifier()(**xgb_options)),
-    ])
+    xgb_model = _xgboost_classifier()(**xgb_options)
+    
+    print("Training XGBoost with validation-based early stopping...")
+    xgb_model.fit(
+        X_train_scaled, y_train,
+        eval_set=[(X_train_scaled, y_train), (X_val_scaled, y_val)],
+        verbose=False
+    )
+    
+    best_iteration = getattr(xgb_model, "best_iteration", None)
+    if best_iteration is not None:
+        print(f"  Best iteration: {best_iteration}")
 
-    pipeline.fit(X_train, y_train)
+    pipeline = Pipeline(steps=[
+        ("scaler", scaler),
+        ("model", xgb_model),
+    ])
 
     # ── Validation metrics ────────────────────────────────────────────────────
     val_proba = pipeline.predict_proba(X_val)[:, 1]
@@ -293,10 +309,11 @@ def train_xgboost(
         "classification_report": classification_report(y_test, test_pred, zero_division=0),
         **val_metrics,
         "label_provenance": (
-            "ALGORITHMIC (not real recruiter data): "
-            "shortlisted = (final_score >= 0.4) where final_score is a "
-            "linear composite of skill_match_score + experience_match + education_match. "
-            "XGBoost is learning to reproduce the source scoring rule."
+            "MODE A - EXPERIMENTAL: "
+            "The target 'shortlisted' is ALGORITHMICALLY derived from features "
+            "like skill_match_score + experience_match + education_match. "
+            "This model learns to reproduce the source scoring rule. "
+            "For production (Mode B), this will be replaced with human recruiter feedback."
         ),
         "split_strategy": (
             "Row-level stratified split on job_role. "
@@ -316,7 +333,7 @@ def train_xgboost(
     schema = {
         "schema_version": SCHEMA_VERSION,
         "model_type": "XGBClassifier",
-        "target": "shortlisted",
+        "target": "experimental_score",
         "feature_names": PAIR_FEATURE_NAMES,
         "feature_count": len(PAIR_FEATURE_NAMES),
         "label_provenance": metrics["label_provenance"],

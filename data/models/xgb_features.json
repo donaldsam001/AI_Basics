@@ -25,9 +25,9 @@
   ],
   "schema_version": "2.0",
   "model_type": "XGBClassifier",
-  "target": "shortlisted",
+  "target": "experimental_score",
   "feature_count": 22,
-  "label_provenance": "ALGORITHMIC (not real recruiter data): shortlisted = (final_score >= 0.4) where final_score is a linear composite of skill_match_score + experience_match + education_match. XGBoost is learning to reproduce the source scoring rule.",
+  "label_provenance": "MODE A - EXPERIMENTAL: The target 'shortlisted' is ALGORITHMICALLY derived from features like skill_match_score + experience_match + education_match. This model learns to reproduce the source scoring rule. For production (Mode B), this will be replaced with human recruiter feedback.",
   "builder_module": "src.models.feature_builder",
   "builder_function": "build_pair_features"
 }

@@ -11,7 +11,8 @@ faiss-cpu
 xgboost
 llama-cpp-python
 fastapi
-uvicorn[standard]
+uvicorn
 pydantic
 joblib
 python-multipart
+supabase
